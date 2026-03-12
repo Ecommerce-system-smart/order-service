@@ -84,6 +84,7 @@ public class OrderService {
         order.setProductId(product.getId());
         order.setPrice(BigDecimal.valueOf(product.getPrice()));
         order.setQuantity(request.getQuantity());
+        order.setEmail(request.getEmail());
 
         // 5. Lưu vào Database
         orderRepository.save(order);
