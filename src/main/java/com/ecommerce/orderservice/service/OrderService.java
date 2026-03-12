@@ -58,7 +58,7 @@ public class OrderService {
     }
 
 
-    @Transactional // Thêm cái này để nếu lỗi thì rollback
+    @Transactional // Đảm bảo lỗi ở bất kỳ bước nào (trừ tồn kho, lưu DB, Kafka) đều rollback
     @CircuitBreaker(name = "productService", fallbackMethod = "createOrderFallback")
     public OrderResponse createOrder(OrderRequest request) {
         // 1. GỌI SANG PRODUCT SERVICE CHECK HÀNG
@@ -74,21 +74,32 @@ public class OrderService {
         }
 
         // 3. --- TRỪ TỒN KHO (GỌI SANG PRODUCT SERVICE) ---
-        // Nếu bên kia lỗi (hết hàng), nó sẽ ném lỗi và dừng luôn tại đây
+        // Nếu bên kia lỗi (hết hàng), nó sẽ ném lỗi và dừng luôn tại đây (Rollback Transaction)
         productClient.reduceProductQuantity(request.getProductId(), request.getQuantity());
 
         // 4. Tạo đơn hàng
         Order order = new Order();
         order.setOrderNumber(UUID.randomUUID().toString());
-        order.setSkuCode(product.getName());
+        order.setSkuCode(product.getName()); // Lưu ý: Nếu bạn có truyền SkuCode từ request thì dùng request.getSkuCode()
         order.setProductId(product.getId());
         order.setPrice(BigDecimal.valueOf(product.getPrice()));
         order.setQuantity(request.getQuantity());
         order.setEmail(request.getEmail());
 
-        // 5. Lưu vào Database
+        // 5. Lưu đơn hàng vào Database
         orderRepository.save(order);
-        placeOrder(request);
+
+        // 6. Gửi sự kiện sang Kafka
+        String topicName = "notificationTopic";
+
+        // Sử dụng email thực tế từ request/order thay vì hardcode "user@example.com"
+        String customerEmail = order.getEmail() != null ? order.getEmail() : "no-email-provided";
+        OrderPlacedEvent event = new OrderPlacedEvent(order.getOrderNumber(), customerEmail);
+
+        kafkaTemplate.send(topicName, event);
+        System.out.println("DEBUG: Đã gửi tin nhắn Kafka cho Order: " + order.getOrderNumber() + " tới topic: " + topicName);
+
+        // 7. Map và trả về Response
         return mapToResponse(order);
     }
 
