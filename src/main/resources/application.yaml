@@ -71,7 +71,3 @@ management:
     metrics:
       tags:
         application: ${spring.application.name} # Gán tên service vào dữ liệu để dễ lọc
-
-app:
-  services:
-    product-url: "http://localhost:8081" # Dành cho lúc chạy local trên máy
