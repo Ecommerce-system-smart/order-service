@@ -1,7 +1,7 @@
 # Stage 1: Build
 # Chỉ cần 1 Stage duy nhất là Run
 # Dùng bản JRE (Java Runtime Environment) cho nhẹ, không cần bản JDK to
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 

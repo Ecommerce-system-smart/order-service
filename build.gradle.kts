@@ -25,7 +25,7 @@ repositories {
 	mavenCentral()
 	maven {
 		name = "GitHubPackages"
-		url = uri("https://maven.pkg.github.com/Vanprolink/common-service")
+		url = uri("https://maven.pkg.github.com/Ecommerce-system-smart/common-service")
 		credentials {
 			// Logic: Nếu có biến môi trường (CI) thì dùng -> Nếu không thì tìm trong gradle.properties (Local)
 			username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as String?

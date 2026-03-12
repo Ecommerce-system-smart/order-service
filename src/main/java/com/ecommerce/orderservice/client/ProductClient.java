@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "product-service")
+@FeignClient(name = "product-service", url = "${app.services.product-url}")
 public interface ProductClient {
 
     // Copy y hệt chữ ký của Controller bên Product Service

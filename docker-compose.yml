@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  order-service:
+    build: .
+    container_name: order-service
+    ports:
+      - "8100:8082" # Port bạn mong muốn
+    environment:
+      # LƯU Ý: Hostname bây giờ là 'ecommerce-postgres' (tên container ở file gốc)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ecommerce-postgres:5432/ecommerce_db
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: password
+
+      # Kết nối các món khác (nếu code bạn đã config)
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: ecommerce-kafka:29092
+      SPRING_ZIPKIN_BASE_URL: http://ecommerce-zipkin:9411
+
+      # Cấu hình Hibernate
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
+
+    # Kết nối vào mạng chung
+    networks:
+      - ecommerce-net
+
+# Khai báo mạng này là mạng "ngoại lai" (đã được tạo ở bước 1)
+networks:
+  ecommerce-net:
+    external: true
+    name: ecommerce-microservices_ecommerce-net

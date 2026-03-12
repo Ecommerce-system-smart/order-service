@@ -1,4 +1,4 @@
-name: Build and Push Microservices
+name: Build and Push Order Service
 
 on:
   push:
