@@ -88,7 +88,7 @@ public class OrderService {
 
         // 5. Lưu vào Database
         orderRepository.save(order);
-
+        placeOrder(request);
         return mapToResponse(order);
     }
 
