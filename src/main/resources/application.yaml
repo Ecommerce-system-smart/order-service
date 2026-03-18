@@ -5,7 +5,7 @@ spring:
   application:
     name: order-service # Tên định danh trên Eureka
   datasource:
-    url: jdbc:postgresql://localhost:5432/ecommerce_db?currentSchema=order_service
+    url: jdbc:postgresql://postgres-service:5432/ecommerce_db?currentSchema=order_service
     username: admin                                # Tên đăng nhập Postgres của bạn
     password: password                             # Mật khẩu Postgres của bạn
     driver-class-name: org.postgresql.Driver
@@ -34,6 +34,13 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+vnpay:
+  tmn-code: "67K65NVN"
+  hash-secret: "9RMCSN1KJ9TNBWWOJXGO0Y1UGNGYIP04"
+  pay-url: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+  # Đây là link FE của bạn mà VNPay sẽ redirect về sau khi khách thanh toán xong
+  return-url: "http://localhost:5173/payment-result"
 
 # --- CẤU HÌNH RESILIENCE4J (Đã sửa lại định dạng YAML) ---
 resilience4j:
@@ -71,3 +78,4 @@ management:
     metrics:
       tags:
         application: ${spring.application.name} # Gán tên service vào dữ liệu để dễ lọc
+
