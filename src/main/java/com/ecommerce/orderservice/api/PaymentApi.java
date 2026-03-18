@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collections;
 
 @RestController
-@RequestMapping("/api/payment")
+@RequestMapping("/api/orders/payment")
 public class PaymentApi {
 
     @Autowired
