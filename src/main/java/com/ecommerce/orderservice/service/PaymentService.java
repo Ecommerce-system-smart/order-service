@@ -45,7 +45,7 @@ public class PaymentService {
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
         // Thời gian hết hạn thanh toán (Cho 15 phút)
-        cld.add(Calendar.MINUTE, 15);
+        cld.add(Calendar.HOUR, 15);
         String vnp_ExpireDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
