@@ -41,6 +41,9 @@ vnpay:
   pay-url: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
   # Đây là link FE của bạn mà VNPay sẽ redirect về sau khi khách thanh toán xong
   return-url: "http://localhost:5173/payment-result"
+  version: "2.1.0"
+  command: "pay"
+  order-type: "other"
 
 # --- CẤU HÌNH RESILIENCE4J (Đã sửa lại định dạng YAML) ---
 resilience4j:
