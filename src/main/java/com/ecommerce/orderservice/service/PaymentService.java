@@ -87,6 +87,58 @@ public class PaymentService {
         return vnPayConfig.vnp_PayUrl + "?" + queryUrl;
     }
 
+    // Thêm hàm này vào PaymentService.java
+    public int verifyPayment(HttpServletRequest request) {
+        Map<String, String> fields = new HashMap<>();
+        for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements();) {
+            String fieldName = params.nextElement();
+            String fieldValue = request.getParameter(fieldName);
+            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                fields.put(fieldName, fieldValue);
+            }
+        }
+
+        String vnp_SecureHash = request.getParameter("vnp_SecureHash");
+        fields.remove("vnp_SecureHashType"); // Loại bỏ các param không tham gia mã hóa
+        fields.remove("vnp_SecureHash");
+
+        // Sắp xếp tham số để tạo lại chữ ký
+        List<String> fieldNames = new ArrayList<>(fields.keySet());
+        Collections.sort(fieldNames);
+        StringBuilder hashData = new StringBuilder();
+        try {
+            Iterator<String> itr = fieldNames.iterator();
+            while (itr.hasNext()) {
+                String fieldName = itr.next();
+                String fieldValue = fields.get(fieldName);
+                if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                    hashData.append(fieldName);
+                    hashData.append('=');
+                    hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                    if (itr.hasNext()) {
+                        hashData.append('&');
+                    }
+                }
+            }
+        } catch (Exception e) {
+            return -1;
+        }
+
+        // Tạo chữ ký mới từ dữ liệu VNPay trả về
+        String signValue = VNPayConfig.hmacSHA512(vnPayConfig.secretKey, hashData.toString());
+
+        // Kiểm tra chữ ký và trạng thái giao dịch
+        if (signValue.equals(vnp_SecureHash)) {
+            if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
+                return 1; // Thành công (Chữ ký chuẩn, giao dịch thành công)
+            } else {
+                return 0; // Thất bại (Chữ ký chuẩn, nhưng giao dịch bị hủy/lỗi)
+            }
+        } else {
+            return -1; // Hacker can thiệp (Chữ ký sai lệch)
+        }
+    }
+
     // Hàm lấy IP của user gọi API
     private String getIpAddress(HttpServletRequest request) {
         String ipAddress = request.getHeader("X-FORWARDED-FOR");
