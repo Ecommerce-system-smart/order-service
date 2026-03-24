@@ -11,6 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Collections;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ecommerce.orderservice.utils.EncryptionUtil;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -39,9 +43,16 @@ public class OrderApi {
     }
 
     @PostMapping("/create-order")
-    @ResponseStatus(HttpStatus.CREATED) // Trả về code 201 khi tạo thành công
-    public OrderResponse createOrder(@RequestBody OrderRequest orderRequest) {
-        return orderService.createOrder(orderRequest);
+    public ResponseEntity<Map<String, String>> createOrder(@RequestBody Map<String, String> requestMap) {
+        try {
+            String decrypted = EncryptionUtil.decrypt(requestMap.get("payload"));
+            OrderRequest request = new ObjectMapper().readValue(decrypted, OrderRequest.class);
+            OrderResponse response = orderService.createOrder(request);
+            String json = new ObjectMapper().writeValueAsString(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("payload", EncryptionUtil.encrypt(json)));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("message", e.getMessage()));
+        }
     }
 
 }

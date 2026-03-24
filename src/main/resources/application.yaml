@@ -2,6 +2,8 @@ server:
   port: 8082 # Product là 8081, Gateway 8080, thì ông này 8082
 
 spring:
+  main:
+    allow-bean-definition-overriding: true
   application:
     name: order-service # Tên định danh trên Eureka
   datasource:
